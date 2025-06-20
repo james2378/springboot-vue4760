@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.AnquanDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.anquan_uuid_number as anquanUuidNumber
+        ,a.anquan_name as anquanName
+        ,a.anquan_types as anquanTypes
+        ,a.anquan_content as anquanContent
+        ,a.zhixing_time as zhixingTime
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.AnquanView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+
+        FROM anquan  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.anquanUuidNumber != '' and params.anquanUuidNumber != null and params.anquanUuidNumber != 'null' ">
+                and a.anquan_uuid_number like CONCAT('%',#{params.anquanUuidNumber},'%')
+            </if>
+            <if test=" params.anquanName != '' and params.anquanName != null and params.anquanName != 'null' ">
+                and a.anquan_name like CONCAT('%',#{params.anquanName},'%')
+            </if>
+            <if test="params.anquanTypes != null and params.anquanTypes != ''">
+                and a.anquan_types = #{params.anquanTypes}
+            </if>
+            <if test=" params.anquanContent != '' and params.anquanContent != null and params.anquanContent != 'null' ">
+                and a.anquan_content like CONCAT('%',#{params.anquanContent},'%')
+            </if>
+            <if test=" params.zhixingTimeStart != '' and params.zhixingTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.zhixing_time) >= UNIX_TIMESTAMP(#{params.zhixingTimeStart}) ]]>
+            </if>
+            <if test=" params.zhixingTimeEnd != '' and params.zhixingTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.zhixing_time) <= UNIX_TIMESTAMP(#{params.zhixingTimeEnd}) ]]>
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

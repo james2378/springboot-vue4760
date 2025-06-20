@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.YiqingfangkongDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.zhiyuanzhe_id as zhiyuanzheId
+        ,a.yiqingfangkong_uuid_number as yiqingfangkongUuidNumber
+        ,a.yiqingfangkong_name as yiqingfangkongName
+        ,a.yiqingfangkong_types as yiqingfangkongTypes
+        ,a.quezhenrenshu as quezhenrenshu
+        ,a.mijierenshu as mijierenshu
+        ,a.yiqingfangkong_content as yiqingfangkongContent
+        ,a.suoshu_time as suoshuTime
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.YiqingfangkongView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,zhiyuanzhe.zhiyuanzhe_name as zhiyuanzheName
+        ,zhiyuanzhe.zhiyuanzhe_phone as zhiyuanzhePhone
+        ,zhiyuanzhe.zhiyuanzhe_id_number as zhiyuanzheIdNumber
+        ,zhiyuanzhe.zhiyuanzhe_photo as zhiyuanzhePhoto
+        ,zhiyuanzhe.zhiyuanzhe_email as zhiyuanzheEmail
+
+        FROM yiqingfangkong  a
+        left JOIN zhiyuanzhe zhiyuanzhe ON a.zhiyuanzhe_id = zhiyuanzhe.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.zhiyuanzheId != null and params.zhiyuanzheId != ''">
+                and (
+                    a.zhiyuanzhe_id = #{params.zhiyuanzheId}
+                )
+            </if>
+            <if test=" params.yiqingfangkongUuidNumber != '' and params.yiqingfangkongUuidNumber != null and params.yiqingfangkongUuidNumber != 'null' ">
+                and a.yiqingfangkong_uuid_number like CONCAT('%',#{params.yiqingfangkongUuidNumber},'%')
+            </if>
+            <if test=" params.yiqingfangkongName != '' and params.yiqingfangkongName != null and params.yiqingfangkongName != 'null' ">
+                and a.yiqingfangkong_name like CONCAT('%',#{params.yiqingfangkongName},'%')
+            </if>
+            <if test="params.yiqingfangkongTypes != null and params.yiqingfangkongTypes != ''">
+                and a.yiqingfangkong_types = #{params.yiqingfangkongTypes}
+            </if>
+            <if test="params.quezhenrenshuStart != null and params.quezhenrenshuStart != ''">
+                <![CDATA[  and a.quezhenrenshu >= #{params.quezhenrenshuStart}   ]]>
+            </if>
+            <if test="params.quezhenrenshuEnd != null and params.quezhenrenshuEnd != ''">
+                <![CDATA[  and a.quezhenrenshu <= #{params.quezhenrenshuEnd}   ]]>
+            </if>
+             <if test="params.quezhenrenshu != null and params.quezhenrenshu != ''">
+                and a.quezhenrenshu = #{params.quezhenrenshu}
+             </if>
+            <if test="params.mijierenshuStart != null and params.mijierenshuStart != ''">
+                <![CDATA[  and a.mijierenshu >= #{params.mijierenshuStart}   ]]>
+            </if>
+            <if test="params.mijierenshuEnd != null and params.mijierenshuEnd != ''">
+                <![CDATA[  and a.mijierenshu <= #{params.mijierenshuEnd}   ]]>
+            </if>
+             <if test="params.mijierenshu != null and params.mijierenshu != ''">
+                and a.mijierenshu = #{params.mijierenshu}
+             </if>
+            <if test=" params.yiqingfangkongContent != '' and params.yiqingfangkongContent != null and params.yiqingfangkongContent != 'null' ">
+                and a.yiqingfangkong_content like CONCAT('%',#{params.yiqingfangkongContent},'%')
+            </if>
+            <if test=" params.suoshuTimeStart != '' and params.suoshuTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.suoshu_time) >= UNIX_TIMESTAMP(#{params.suoshuTimeStart}) ]]>
+            </if>
+            <if test=" params.suoshuTimeEnd != '' and params.suoshuTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.suoshu_time) <= UNIX_TIMESTAMP(#{params.suoshuTimeEnd}) ]]>
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断志愿者的id不为空 -->
+            <if test=" params.zhiyuanzheIdNotNull != '' and params.zhiyuanzheIdNotNull != null and params.zhiyuanzheIdNotNull != 'null' ">
+                and a.zhiyuanzhe_id IS NOT NULL
+            </if>
+            <if test=" params.zhiyuanzheName != '' and params.zhiyuanzheName != null and params.zhiyuanzheName != 'null' ">
+                and zhiyuanzhe.zhiyuanzhe_name like CONCAT('%',#{params.zhiyuanzheName},'%')
+            </if>
+            <if test=" params.zhiyuanzhePhone != '' and params.zhiyuanzhePhone != null and params.zhiyuanzhePhone != 'null' ">
+                and zhiyuanzhe.zhiyuanzhe_phone like CONCAT('%',#{params.zhiyuanzhePhone},'%')
+            </if>
+            <if test=" params.zhiyuanzheIdNumber != '' and params.zhiyuanzheIdNumber != null and params.zhiyuanzheIdNumber != 'null' ">
+                and zhiyuanzhe.zhiyuanzhe_id_number like CONCAT('%',#{params.zhiyuanzheIdNumber},'%')
+            </if>
+            <if test=" params.zhiyuanzheEmail != '' and params.zhiyuanzheEmail != null and params.zhiyuanzheEmail != 'null' ">
+                and zhiyuanzhe.zhiyuanzhe_email like CONCAT('%',#{params.zhiyuanzheEmail},'%')
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
